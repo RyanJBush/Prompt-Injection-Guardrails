@@ -1,13 +1,31 @@
-# Permission gate demo (local, scripted, synthetic)
+# Prompt-Injection Guardrails
+
+**AI Agent Security: Tool-Call Permission Guardrails**
+
+[![ci](https://github.com/RyanJBush/Prompt-Injection-Guardrails/actions/workflows/ci.yml/badge.svg)](https://github.com/RyanJBush/Prompt-Injection-Guardrails/actions/workflows/ci.yml)
+
+A default-deny authorization layer that validates agent-proposed tool calls and blocks
+operations outside a trusted task policy, demonstrated through reproducible synthetic
+prompt-injection scenarios.
 
 A small default-deny gate in front of a recording **mock** executor. It authorizes three tool
 calls for one disposable task (draft a whitespace-trimming fix for `normalize_label`) and
 blocks everything else. Nothing here reads real secrets, touches the network, or writes to disk:
 the draft lives in memory and `fixtures/fake_secret.txt` is a synthetic placeholder.
 
+## How this differs from a prompt-injection detector
+
+This project does not classify text. It never reads the issue text, the prompt, or any model
+output, and it uses no LLM. It checks each proposed tool call (tool name, argument shape, and
+resolved path or test name) against a fixed task policy and denies anything outside it. An
+injected instruction is stopped only when it leads to a tool call the policy does not allow;
+the gate cannot tell whether text is malicious, and it does not need to.
+
 ## Run it
 
 ```bash
+git clone https://github.com/RyanJBush/Prompt-Injection-Guardrails.git
+cd Prompt-Injection-Guardrails
 pip install -r requirements-dev.txt
 python -m pytest -q -rs
 python run_demo.py          # exit code 0 only if every frozen expectation holds
@@ -78,4 +96,9 @@ separately from these scripted totals.
 - The executor is a mock; the gate has not been tested against a real tool runtime.
 - Decision rows redact patch contents and arbitrary values, but the executor's internal record
   (used by tests) holds the real patch and canonical paths.
-- Run on Python 3.12 and 3.13 locally; CI runs both on Linux and Windows once pushed.
+- Run on Python 3.12 and 3.13 locally; CI runs both on Ubuntu and Windows.
+- It does not detect prompt injection in arbitrary text, analyze prompt semantics, or show that
+  any LLM resists malicious instructions.
+- It executes no real agent tools and is not a production-ready agent security platform.
+- The three scripted cases are synthetic. They do not show protection against all
+  prompt-injection attacks or generalization to real-world attacks.
