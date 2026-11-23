@@ -102,3 +102,7 @@ separately from these scripted totals.
 - It executes no real agent tools and is not a production-ready agent security platform.
 - The three scripted cases are synthetic. They do not show protection against all
   prompt-injection attacks or generalization to real-world attacks.
+
+## License
+
+[MIT](LICENSE)
